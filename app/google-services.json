@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "934913958002",
+    "project_id": "harrypotterbook-20fce",
+    "storage_bucket": "harrypotterbook-20fce.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:934913958002:android:3908a77aa2085d50cf62eb",
+        "android_client_info": {
+          "package_name": "com.example.harrypotterapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBR102AK-1CTYZKjK26eGVV_qTXmibs9z0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

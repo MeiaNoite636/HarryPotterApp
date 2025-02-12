@@ -6,7 +6,7 @@ import javax.inject.Inject
 class CreateUserUseCase @Inject constructor(
     private val authRepository: FirebaseAuthRepository
 ){
-    suspend operator fun invoke(email: String, password: String) {
-        authRepository.createUser(email, password)
+    suspend operator fun invoke(email: String, password: String) : Result<Unit>{
+        return authRepository.createUser(email, password)
     }
 }

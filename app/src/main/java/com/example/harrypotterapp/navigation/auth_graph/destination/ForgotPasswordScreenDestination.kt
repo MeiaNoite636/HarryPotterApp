@@ -8,5 +8,7 @@ import kotlinx.serialization.Serializable
 object ForgotPasswordDestination
 
 fun NavGraphBuilder.forgotPasswordScreenDestination() {
-    composable<ForgotPasswordDestination> {}
+    composable<ForgotPasswordDestination> {
+
+    }
 }

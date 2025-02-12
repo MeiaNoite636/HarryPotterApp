@@ -12,6 +12,6 @@ fun MainGraph(navController: NavHostController) {
         navController = navController,
         startDestination = AuthGraph
     ) {
-        authGraph()
+        authGraph(navController)
     }
 }

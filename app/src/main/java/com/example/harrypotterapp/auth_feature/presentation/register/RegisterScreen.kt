@@ -1,13 +1,11 @@
 package com.example.harrypotterapp.auth_feature.presentation.register
 
-//if password = confirmPassword{ RegisterEvent}
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -24,15 +23,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,57 +49,46 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.harrypotterapp.R
-import com.example.harrypotterapp.auth_feature.presentation.login.LoginEvent
-import com.example.harrypotterapp.auth_feature.presentation.login.LoginState
-import com.example.harrypotterapp.auth_feature.presentation.login.LoginViewModel
+import com.example.harrypotterapp.auth_feature.util.isValidEmail
 import com.example.harrypotterapp.ui.theme.bodyFont
 import com.example.harrypotterapp.ui.theme.colorDisabled
 import com.example.harrypotterapp.ui.theme.colorTextDisabled
 import com.example.harrypotterapp.ui.theme.colorTitle
 import com.example.harrypotterapp.ui.theme.subTitleFont
 import com.example.harrypotterapp.ui.theme.titleFont
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(
-    onNavigateToRegister: () -> Unit,
-    loginToHomeGraph: () -> Unit,
-    onNavigateToForgotPassword: () -> Unit,
-    loginViewModel: LoginViewModel = hiltViewModel()
+fun RegisterScreen(
+    registerViewModel: RegisterViewModel = hiltViewModel(),
 ) {
+
     val snackBarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+    val registerState by registerViewModel.registerState.collectAsState()
 
-    LoginScreenContent(
-        onNavigateToRegister = onNavigateToRegister,
-        onNavigateToForgotPassword = onNavigateToForgotPassword,
-        loginEvent = loginViewModel::handleEvent,
-        loginState = loginViewModel.loginState.collectAsState().value
+    RegisterScreenContent(
+        registerEvent = registerViewModel::handleEvent,
+        registerState = registerState,
+        snackBarHostState = snackBarHostState,
+        coroutineScope = coroutineScope
     )
-
-    //Mesma logica para sharedPreferences
-    LaunchedEffect(Unit) {
-        loginViewModel.loginState.collect { loginState ->
-            if (loginState.isSuccessful) {
-                loginToHomeGraph()
-            } else {
-                loginState.error?.let {
-                    snackBarHostState.showSnackbar(it)
-                }
-            }
-        }
-    }
 
     SnackbarHost(hostState = snackBarHostState)
 }
 
 @Composable
-fun LoginScreenContent(
+fun RegisterScreenContent(
     modifier: Modifier = Modifier,
-    onNavigateToRegister: () -> Unit,
-    onNavigateToForgotPassword: () -> Unit,
-    loginEvent: (LoginEvent) -> Unit,
-    loginState: LoginState
+    registerEvent: (RegisterEvent) -> Unit,
+    registerState: RegisterState,
+    snackBarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope
 ) {
     var hidePassword by remember { mutableStateOf(false) }
+    var hideConfirmPassword by remember { mutableStateOf(false) }
+    var isEmailValid by remember { mutableStateOf(true) }
 
     Box(
         modifier
@@ -130,7 +117,7 @@ fun LoginScreenContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Hello Again!",
+                    text = "Welcome",
                     style = titleFont,
                     color = colorTitle
                 )
@@ -144,41 +131,35 @@ fun LoginScreenContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Welcome back you've\n       been missed!",
+                    text = "Let's create your account!",
                     style = subTitleFont,
                     color = colorTitle
                 )
             }
 
-            //Email
+            //Username
             TextField(
                 modifier = modifier
                     .fillMaxWidth()
                     .padding(top = 48.dp),
-                value = loginState.email,
+                value = registerState.username,
                 onValueChange = {
                     if (it.length <= 50) {
-                        loginEvent(LoginEvent.EmailChanged(it))
+                        registerEvent(RegisterEvent.UserNameChanged(it))
                     }
                 },
                 shape = RoundedCornerShape(12.dp),
                 label = {
                     Text(
-                        text = "Email",
-                        style = bodyFont
-                    )
-                },
-                placeholder = {
-                    Text(
-                        text = "example@gmail.com",
+                        text = "Username",
                         style = bodyFont
                     )
                 },
                 trailingIcon = {
                     IconButton(
-                        onClick = { loginEvent(LoginEvent.ClearEmail) }
+                        onClick = { registerEvent(RegisterEvent.ClearUserName) }
                     ) {
-                        if (loginState.isNotEmpty()) {
+                        if (registerState.username.isNotEmpty()) {
                             Icon(
                                 Icons.Filled.Close,
                                 tint = colorDisabled,
@@ -204,15 +185,88 @@ fun LoginScreenContent(
                 )
             )
 
+            //Email
+            TextField(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp),
+                value = registerState.email,
+                onValueChange = {
+                    if (it.length <= 50) {
+                        registerEvent(RegisterEvent.EmailChanged(it))
+                        isEmailValid = isValidEmail(it)
+                    }
+                },
+                shape = RoundedCornerShape(12.dp),
+                label = {
+                    Text(
+                        text = "Email",
+                        style = bodyFont
+                    )
+                },
+                supportingText = {
+                    if (!isEmailValid) {
+                        Text(
+                            text = "Invalid format",
+                            color = Color.Red,
+                            fontFamily = FontFamily(Font(R.font.quicksand_bold))
+                        )
+                    }
+                },
+                placeholder = {
+                    Text(
+                        text = "example@gmail.com",
+                        style = bodyFont
+                    )
+                },
+                trailingIcon = {
+                    IconButton(
+                        onClick = { registerEvent(RegisterEvent.ClearEmail) }
+                    ) {
+                        if (registerState.email.isNotEmpty()) {
+                            if (!isEmailValid) {
+                                Icon(
+                                    Icons.Filled.Info,
+                                    tint = Color.Red,
+                                    modifier = modifier.size(24.dp),
+                                    contentDescription = null
+                                )
+                            } else {
+                                Icon(
+                                    Icons.Filled.Close,
+                                    tint = colorDisabled,
+                                    modifier = modifier.size(24.dp),
+                                    contentDescription = null
+                                )
+                            }
+                        }
+                    }
+                },
+                singleLine = true,
+                textStyle = TextStyle(
+                    color = colorTitle,
+                    fontSize = 16.sp,
+                    fontFamily = FontFamily(Font(R.font.quicksand_bold))
+                ),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color(0xFFFEFEFD),
+                    unfocusedContainerColor = Color.White,
+                    unfocusedPlaceholderColor = colorTextDisabled,
+                    focusedPlaceholderColor = colorTextDisabled,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                )
+            )
+
             //Password
             TextField(
                 modifier = modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp),
-                value = loginState.password,
+                    .padding(top = 8.dp),
+                value = registerState.password,
                 onValueChange = {
                     if (it.length <= 20) {
-                        loginEvent(LoginEvent.PasswordChanged(it))
+                        registerEvent(RegisterEvent.PasswordChanged(it))
                     }
                 },
                 visualTransformation = if (hidePassword) VisualTransformation.None else PasswordVisualTransformation(),
@@ -255,27 +309,62 @@ fun LoginScreenContent(
                 )
             )
 
-            Row(
-                modifier = modifier.fillMaxWidth()
-            ) {
-                Spacer(Modifier.weight(1f))
-                TextButton(
-                    onClick = { onNavigateToForgotPassword() }
-                ) {
+            //Confirm Password
+            TextField(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp),
+                value = registerState.confirmPassword,
+                onValueChange = {
+                    if (it.length <= 20) {
+                        registerEvent(RegisterEvent.ConfirmPasswordChanged(it))
+                    }
+                },
+                visualTransformation = if (hideConfirmPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                shape = RoundedCornerShape(12.dp),
+                label = {
                     Text(
-                        text = "Recovery password",
-                        style = TextStyle(
-                            color = Color(0xFF79797C),
-                            fontFamily = FontFamily(Font(R.font.quicksand_bold))
-                        )
+                        text = "Confirm Password",
+                        style = bodyFont
                     )
-                }
-            }
-
-            Spacer(modifier = Modifier.padding(top = 24.dp))
+                },
+                trailingIcon = {
+                    IconButton(
+                        onClick = { hideConfirmPassword = !hideConfirmPassword }
+                    ) {
+                        if (registerState.confirmPassword.isNotEmpty()) {
+                            Icon(
+                                if (hideConfirmPassword) painterResource(
+                                    id = R.drawable.eye_opened_icon
+                                ) else painterResource(
+                                    id = R.drawable.eye_closed_icon
+                                ),
+                                tint = colorDisabled,
+                                modifier = modifier.size(24.dp),
+                                contentDescription = null
+                            )
+                        }
+                    }
+                },
+                singleLine = true,
+                textStyle = TextStyle(
+                    color = colorTitle,
+                    fontSize = 16.sp,
+                    fontFamily = FontFamily(Font(R.font.quicksand_bold))
+                ),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color(0xFFFEFEFD),
+                    unfocusedContainerColor = Color.White,
+                    unfocusedPlaceholderColor = colorTextDisabled,
+                    focusedPlaceholderColor = colorTextDisabled,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                )
+            )
 
             Box(
                 modifier = Modifier
+                    .padding(top = 64.dp)
                     .fillMaxWidth()
                     .height(58.dp)
                     .shadow(
@@ -283,21 +372,43 @@ fun LoginScreenContent(
                         RoundedCornerShape(12.dp),
                         ambientColor = Color(0xFFCC2FC5),
                         spotColor = Color(0xFFCC2FC5)
-                    ) // Sombra destacada
+                    ) // Shadow effect
             ) {
                 Button(
                     modifier = modifier
                         .fillMaxWidth()
                         .height(48.dp),
                     onClick = {
-                        loginEvent(LoginEvent.Login)
+                        coroutineScope.launch {
+                            when {
+                                registerState.username.isBlank() -> snackBarHostState.showSnackbar("Username cannot be empty")
+                                registerState.email.isBlank() -> snackBarHostState.showSnackbar("Email cannot be empty")
+                                registerState.password.isBlank() -> snackBarHostState.showSnackbar("Password cannot be empty")
+                                registerState.confirmPassword.isBlank() -> snackBarHostState.showSnackbar(
+                                    "Confirm Password cannot be empty"
+                                )
+
+                                registerState.password != registerState.confirmPassword -> snackBarHostState.showSnackbar(
+                                    "Passwords do not match"
+                                )
+
+                                else -> {
+                                    registerEvent(RegisterEvent.Register)
+                                    if (registerState.isSuccessful) {
+                                        snackBarHostState.showSnackbar("Registration successful")
+                                    } else {
+                                        snackBarHostState.showSnackbar(registerState.error.toString())
+                                    }
+                                }
+                            }
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFCC2FC5)
                     ),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    if (loginState.isLoading) {
+                    if (registerState.isLoading) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(24.dp),
                             color = Color.White,
@@ -305,43 +416,12 @@ fun LoginScreenContent(
                         )
                     } else {
                         Text(
-                            text = "Login",
+                            text = "Register",
                             color = Color.White,
                             fontSize = 16.sp,
                             fontFamily = FontFamily(Font(R.font.quicksand_bold))
                         )
                     }
-                }
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Don't have an account?",
-                    style = TextStyle(
-                        color = Color(0xFF79797C),
-                        fontFamily = FontFamily(Font(R.font.quicksand_bold))
-                    ),
-                    color = colorTitle
-                )
-
-                TextButton(
-                    onClick = {
-                        onNavigateToRegister()
-                    }
-                ) {
-                    Text(
-                        text = "Register Now",
-                        style = TextStyle(
-                            color = Color(0xFFCC2FC5),
-                            fontFamily = FontFamily(Font(R.font.quicksand_bold))
-                        )
-                    )
                 }
             }
         }
@@ -350,11 +430,11 @@ fun LoginScreenContent(
 
 @Preview(showBackground = true)
 @Composable
-private fun LoginScreenContentPreview() {
-    LoginScreenContent(
-        onNavigateToRegister = {},
-        onNavigateToForgotPassword = {},
-        loginEvent = {},
-        loginState = LoginState()
+private fun RegisterScreenContentPreview() {
+    RegisterScreenContent(
+        registerEvent = {},
+        registerState = RegisterState(),
+        snackBarHostState = SnackbarHostState(),
+        coroutineScope = rememberCoroutineScope()
     )
 }

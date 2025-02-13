@@ -1,5 +1,6 @@
 package com.example.harrypotterapp.auth_feature.presentation.login
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,10 +36,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -51,10 +50,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.harrypotterapp.R
 import com.example.harrypotterapp.auth_feature.util.isValidEmail
-import com.example.harrypotterapp.ui.theme.bodyFont
-import com.example.harrypotterapp.ui.theme.colorDisabled
 import com.example.harrypotterapp.ui.theme.colorTextDisabled
-import com.example.harrypotterapp.ui.theme.colorTitle
 import com.example.harrypotterapp.ui.theme.subTitleFont
 import com.example.harrypotterapp.ui.theme.titleFont
 import kotlinx.coroutines.CoroutineScope
@@ -99,19 +95,23 @@ fun LoginScreenContent(
     var isEmailValid by remember { mutableStateOf(true) }
 
     Box(
-        modifier
-            .fillMaxSize()
-            .background(
-                Brush.linearGradient(
-                    colors = listOf(
-                        Color(0xFFEEEAEA), // Cor F3EEF2
-                        Color(0xFFECEDF5)  // Cor EBF1F7
-                    ),
-                    start = Offset(0f, 0f),
-                    end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
-                )
-            )
+        modifier = Modifier.fillMaxSize()
     ) {
+        // Background Image
+        Image(
+            painter = painterResource(id = R.drawable.background), // Substitua pela sua imagem
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+
+        //Glass Layer
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White.copy(alpha = 0.1f))
+        )
+
         Column(
             modifier
                 .fillMaxSize()
@@ -127,7 +127,7 @@ fun LoginScreenContent(
                 Text(
                     text = "Hello Again!",
                     style = titleFont,
-                    color = colorTitle
+                    color = Color(0xFFE4E2F0)
                 )
             }
 
@@ -141,15 +141,17 @@ fun LoginScreenContent(
                 Text(
                     text = "Welcome back you've\n       been missed!",
                     style = subTitleFont,
-                    color = colorTitle
+                    color = Color(0xFF8B879D)
                 )
             }
+
+            Spacer(modifier.padding(24.dp))
 
             //Email
             TextField(
                 modifier = modifier
                     .fillMaxWidth()
-                    .padding(top = 48.dp),
+                    .padding(top = 16.dp),
                 value = loginState.email,
                 onValueChange = {
                     if (it.length <= 50) {
@@ -157,17 +159,25 @@ fun LoginScreenContent(
                         isEmailValid = isValidEmail(it)
                     }
                 },
-                shape = RoundedCornerShape(12.dp),
-                label = {
-                    Text(
-                        text = "Email",
-                        style = bodyFont
-                    )
-                },
+                shape = RoundedCornerShape(16.dp),
                 placeholder = {
                     Text(
                         text = "example@gmail.com",
-                        style = bodyFont
+                        style = TextStyle(
+                            color = Color(0xFF8B879D),
+                            fontSize = 16.sp,
+                            fontFamily = FontFamily(Font(R.font.quicksand_semibold))
+                        )
+                    )
+                },
+                label = {
+                    Text(
+                        text = "Email",
+                        style = TextStyle(
+                            color = Color(0xFFFFFFFF),
+                            fontSize = 16.sp,
+                            fontFamily = FontFamily(Font(R.font.quicksand_bold))
+                        )
                     )
                 },
                 supportingText = {
@@ -175,7 +185,7 @@ fun LoginScreenContent(
                         Text(
                             text = "Invalid format",
                             color = Color.Red,
-                            fontFamily = FontFamily(Font(R.font.quicksand_bold))
+                            fontFamily = FontFamily(Font(R.font.quicksand_semibold))
                         )
                     }
                 },
@@ -194,7 +204,7 @@ fun LoginScreenContent(
                             } else {
                                 Icon(
                                     Icons.Filled.Close,
-                                    tint = colorDisabled,
+                                    tint = Color(0xFFE4E2F0),
                                     modifier = modifier.size(24.dp),
                                     contentDescription = null
                                 )
@@ -204,13 +214,13 @@ fun LoginScreenContent(
                 },
                 singleLine = true,
                 textStyle = TextStyle(
-                    color = colorTitle,
+                    color = Color(0xFF8B879D),
                     fontSize = 16.sp,
-                    fontFamily = FontFamily(Font(R.font.quicksand_bold))
+                    fontFamily = FontFamily(Font(R.font.quicksand_semibold))
                 ),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color(0xFFFEFEFD),
-                    unfocusedContainerColor = Color.White,
+                    focusedContainerColor = Color.Black,
+                    unfocusedContainerColor = Color.Black,
                     unfocusedPlaceholderColor = colorTextDisabled,
                     focusedPlaceholderColor = colorTextDisabled,
                     focusedIndicatorColor = Color.Transparent,
@@ -230,11 +240,15 @@ fun LoginScreenContent(
                     }
                 },
                 visualTransformation = if (hidePassword) VisualTransformation.None else PasswordVisualTransformation(),
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(16.dp),
                 label = {
                     Text(
                         text = "Password",
-                        style = bodyFont
+                        style = TextStyle(
+                            color = Color(0xFFFFFFFF),
+                            fontSize = 16.sp,
+                            fontFamily = FontFamily(Font(R.font.quicksand_bold))
+                        )
                     )
                 },
                 trailingIcon = {
@@ -247,7 +261,7 @@ fun LoginScreenContent(
                             ) else painterResource(
                                 id = R.drawable.eye_closed_icon
                             ),
-                            tint = colorDisabled,
+                            tint = Color(0xFFE4E2F0),
                             modifier = modifier.size(24.dp),
                             contentDescription = null
                         )
@@ -255,13 +269,13 @@ fun LoginScreenContent(
                 },
                 singleLine = true,
                 textStyle = TextStyle(
-                    color = colorTitle,
+                    color = Color(0xFF8B879D),
                     fontSize = 16.sp,
-                    fontFamily = FontFamily(Font(R.font.quicksand_bold))
+                    fontFamily = FontFamily(Font(R.font.quicksand_semibold))
                 ),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color(0xFFFEFEFD),
-                    unfocusedContainerColor = Color.White,
+                    focusedContainerColor = Color.Black,
+                    unfocusedContainerColor = Color.Black,
                     unfocusedPlaceholderColor = colorTextDisabled,
                     focusedPlaceholderColor = colorTextDisabled,
                     focusedIndicatorColor = Color.Transparent,
@@ -277,9 +291,9 @@ fun LoginScreenContent(
                     onClick = { onNavigateToForgotPassword() }
                 ) {
                     Text(
-                        text = "Recovery password",
+                        text = "Forgot Password",
                         style = TextStyle(
-                            color = Color(0xFF79797C),
+                            color = Color(0xFF8B879D),
                             fontFamily = FontFamily(Font(R.font.quicksand_bold))
                         )
                     )
@@ -288,56 +302,44 @@ fun LoginScreenContent(
 
             Spacer(modifier = Modifier.padding(top = 24.dp))
 
-            Box(
-                modifier = Modifier
+            Button(
+                modifier = modifier
                     .fillMaxWidth()
-                    .height(58.dp)
-                    .shadow(
-                        16.dp,
-                        RoundedCornerShape(12.dp),
-                        ambientColor = Color(0xFFCC2FC5),
-                        spotColor = Color(0xFFCC2FC5)
-                    ) // Sombra destacada
-            ) {
-                Button(
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    onClick = {
-                        coroutineScope.launch {
-                            when {
-                                loginState.email.isBlank() -> snackBarHostState.showSnackbar("Email is empty")
-                                loginState.password.isBlank() -> snackBarHostState.showSnackbar("Password is empty")
-                                else -> {
-                                    loginEvent(LoginEvent.Login)
-                                    if (loginState.isSuccessful) {
-                                        onNavigateToHome()
-                                    } else {
-                                        snackBarHostState.showSnackbar(message = loginState.error.toString())
-                                    }
+                    .height(48.dp),
+                onClick = {
+                    coroutineScope.launch {
+                        when {
+                            loginState.email.isBlank() -> snackBarHostState.showSnackbar("Email is empty")
+                            loginState.password.isBlank() -> snackBarHostState.showSnackbar("Password is empty")
+                            else -> {
+                                loginEvent(LoginEvent.Login)
+                                if (loginState.isSuccessful) {
+                                    onNavigateToHome()
+                                } else {
+                                    snackBarHostState.showSnackbar(message = loginState.error.toString())
                                 }
                             }
                         }
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFCC2FC5)
-                    ),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    if (loginState.isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            color = Color.White,
-                            strokeWidth = 4.dp
-                        )
-                    } else {
-                        Text(
-                            text = "Login",
-                            color = Color.White,
-                            fontSize = 16.sp,
-                            fontFamily = FontFamily(Font(R.font.quicksand_bold))
-                        )
                     }
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFE6764E)
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                if (loginState.isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.Black,
+                        strokeWidth = 4.dp
+                    )
+                } else {
+                    Text(
+                        text = "Sign in",
+                        color = Color.Black,
+                        fontSize = 16.sp,
+                        fontFamily = FontFamily(Font(R.font.quicksand_bold))
+                    )
                 }
             }
 
@@ -351,10 +353,10 @@ fun LoginScreenContent(
                 Text(
                     text = "Don't have an account?",
                     style = TextStyle(
-                        color = Color(0xFF79797C),
+                        color = Color(0xFF8B879D),
                         fontFamily = FontFamily(Font(R.font.quicksand_bold))
                     ),
-                    color = colorTitle
+                    color = Color(0xFF8B879D)
                 )
 
                 TextButton(
@@ -365,7 +367,7 @@ fun LoginScreenContent(
                     Text(
                         text = "Register Now",
                         style = TextStyle(
-                            color = Color(0xFFCC2FC5),
+                            color = Color(0xFFE4E2F0),
                             fontFamily = FontFamily(Font(R.font.quicksand_bold))
                         )
                     )

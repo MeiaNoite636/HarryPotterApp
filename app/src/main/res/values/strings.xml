@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">HarryPotterApp</string>
+
+
+    <!--    BottomNavGraphTitle-->
+    <string name="text_bottom_nav_home">Home</string>
+    <string name="text_bottom_nav_search">Search</string>
+    <string name="text_bottom_nav_like">Like</string>
+    <string name="text_bottom_nav_profile">Profile</string>
+
+
 </resources>

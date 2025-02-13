@@ -6,5 +6,5 @@ interface FirebaseAuthRepository {
 
     suspend fun logIn(email: String, password: String) : Result<Unit>
 
-    suspend fun recoverPassword(email: String) : Result<Unit>
+    suspend fun forgotPassword(email: String) : Result<Unit>
 }

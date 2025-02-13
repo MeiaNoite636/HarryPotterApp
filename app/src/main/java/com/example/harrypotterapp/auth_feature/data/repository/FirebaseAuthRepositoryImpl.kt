@@ -32,7 +32,7 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun recoverPassword(email: String): Result<Unit> {
+    override suspend fun forgotPassword(email: String): Result<Unit> {
         return try {
             firebaseAuth.sendPasswordResetEmail(email).await()
             Result.success(Unit)
